@@ -21,8 +21,8 @@ CREATE TABLE "Restaurant" (
 -- CreateTable
 CREATE TABLE "MenuCategory" (
     "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
     "restaurantId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -32,13 +32,13 @@ CREATE TABLE "MenuCategory" (
 -- CreateTable
 CREATE TABLE "Product" (
     "id" TEXT NOT NULL,
+    "restaurantId" TEXT NOT NULL,
+    "menuCategoryId" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "price" DOUBLE PRECISION NOT NULL,
     "imageUrl" TEXT NOT NULL,
     "ingredients" TEXT[],
-    "restaurantId" TEXT NOT NULL,
-    "menuCategoryId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -48,8 +48,8 @@ CREATE TABLE "Product" (
 -- CreateTable
 CREATE TABLE "Order" (
     "id" SERIAL NOT NULL,
-    "total" DOUBLE PRECISION NOT NULL,
     "restaurantId" TEXT NOT NULL,
+    "total" DOUBLE PRECISION NOT NULL,
     "status" "eOrderStatus" NOT NULL,
     "consumptionMethod" "eConsumptionMethod" NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -70,6 +70,9 @@ CREATE TABLE "OrderProduct" (
 
     CONSTRAINT "OrderProduct_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Restaurant_slug_key" ON "Restaurant"("slug");
 
 -- AddForeignKey
 ALTER TABLE "MenuCategory" ADD CONSTRAINT "MenuCategory_restaurantId_fkey" FOREIGN KEY ("restaurantId") REFERENCES "Restaurant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
