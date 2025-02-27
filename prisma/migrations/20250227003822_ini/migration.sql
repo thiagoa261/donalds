@@ -52,6 +52,8 @@ CREATE TABLE "Order" (
     "total" DOUBLE PRECISION NOT NULL,
     "status" "eOrderStatus" NOT NULL,
     "consumptionMethod" "eConsumptionMethod" NOT NULL,
+    "customerName" TEXT NOT NULL,
+    "customerCPF" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 

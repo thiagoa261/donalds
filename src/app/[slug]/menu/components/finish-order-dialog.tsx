@@ -17,6 +17,13 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { isValidCpf } from "@/helpers/cpf";
 import { useForm } from "react-hook-form";
+import { PatternFormat } from "react-number-format";
+import { createOrder } from "../actions/create-order";
+import { useParams, useSearchParams } from "next/navigation";
+import { eConsumptionMethod } from "@prisma/client";
+import { useContext } from "react";
+import { CartContext } from "../contexts/cart";
+import { toast } from "sonner";
 
 const formSchema = z.object({
 	name: z.string().trim().min(1, { message: "O Nome é obrigatório" }),
@@ -29,24 +36,44 @@ const formSchema = z.object({
 
 type FormSchema = z.infer<typeof formSchema>;
 
-const FinishOrderButton = () => {
+interface FinishOrderDialogProps {
+	open: boolean;
+	onOpenChange: (open: boolean) => void;
+}
+
+const FinishOrderDialog = ({ open, onOpenChange }: FinishOrderDialogProps) => {
+	const { slug } = useParams<{ slug: string }>();
+	const { products } = useContext(CartContext);
+	const searchParams = useSearchParams();
 	const form = useForm<FormSchema>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
 			name: "",
 			cpf: "",
 		},
+		shouldUnregister: true,
 	});
 
-	const onSubmit = (data: FormSchema) => {
-		console.log({ data });
+	const onSubmit = async (data: FormSchema) => {
+		try {
+			const consumptionMethod = searchParams.get("consumptionMethod") as eConsumptionMethod;
+			await createOrder({
+				consumptionMethod,
+				customerCpf: data.cpf,
+				customerName: data.name,
+				products,
+				slug,
+			});
+			onOpenChange(false);
+			toast.success("Pedido finalizado com sucesso!");
+		} catch (error) {
+			console.error(error);
+		}
 	};
 
 	return (
-		<Drawer>
-			<DrawerTrigger asChild>
-				<Button className="w-full rounded-full">Finalizar pedido</Button>
-			</DrawerTrigger>
+		<Drawer open={open} onOpenChange={onOpenChange}>
+			<DrawerTrigger asChild></DrawerTrigger>
 			<DrawerContent>
 				<DrawerHeader>
 					<DrawerTitle>Finalizar Pedido</DrawerTitle>
@@ -76,7 +103,7 @@ const FinishOrderButton = () => {
 									<FormItem>
 										<FormLabel>Seu CPF</FormLabel>
 										<FormControl>
-											<Input placeholder="Digite seu CPF..." {...field} />
+											<PatternFormat placeholder="Digite seu CPF..." format="###.###.###-##" customInput={Input} {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -84,9 +111,13 @@ const FinishOrderButton = () => {
 							/>
 
 							<DrawerFooter>
-								<Button type="submit">Submit</Button>
-								<DrawerClose>
-									<Button variant="outline">Cancel</Button>
+								<Button type="submit" variant="destructive" className="rounded-full">
+									Finalizar
+								</Button>
+								<DrawerClose asChild>
+									<Button className="w-full rounded-full" variant="outline">
+										Cancelar
+									</Button>
 								</DrawerClose>
 							</DrawerFooter>
 						</form>
@@ -97,4 +128,4 @@ const FinishOrderButton = () => {
 	);
 };
 
-export default FinishOrderButton;
+export default FinishOrderDialog;
