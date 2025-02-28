@@ -2,7 +2,8 @@
 
 import { removeCpfPunctuation } from "@/helpers/cpf";
 import { db } from "@/lib/prisma";
-import { Order, eConsumptionMethod, eOrderStatus } from "@prisma/client";
+import { eConsumptionMethod, eOrderStatus } from "@prisma/client";
+import { redirect } from "next/navigation";
 
 interface CreateOrderInput {
     customerName: string;
@@ -55,4 +56,6 @@ export const createOrder = async (input: CreateOrderInput) => {
             restaurantId: restaurant.id,
         }
     });
+
+    redirect(`/${input.slug}/orders?cpf=${input.customerCpf}`);
 }

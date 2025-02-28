@@ -1,12 +1,16 @@
-import { Button } from "@/components/ui/button";
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const HomePage = () => {
-	return (
-		<div>
-			<h1 className="p-5 border border-red-500 rounded-xl">hello</h1>
-			<Button>Click me</Button>
-		</div>
-	);
+	const router = useRouter();
+
+	useEffect(() => {
+		router.push("/donalds");
+	}, [router]);
+
+	return null;
 };
 
 export default HomePage;
